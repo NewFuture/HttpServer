@@ -7,7 +7,7 @@ namespace CLI
         static void Main(string[] args)
         {
             ExampleServer server = new ExampleServer("0.0.0.0",1122);
-            server.SetServerRoot("./");
+            server.SetRoot("./");
             server.Start();
         }
     }

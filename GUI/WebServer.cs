@@ -7,58 +7,134 @@ using HTTPServer;
 
 namespace GUI
 {
-    class WebServer :HttpServer
+    class WebServer : HttpServer
     {
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="ipAddress">IP地址</param>
-        /// <param name="port">端口号</param>
-        public WebServer(string ipAddress, int port)
-            : base(ipAddress, port)
-        {
+        private string index = "index.html";
 
+        public WebServer(string ip) : base(ip)
+        {
         }
 
-        public override void OnGet(HttpRequest request)
+        /// <summary>
+        /// 默认文件
+        /// </summary>
+        public string Index
         {
-            if (request.Method == "GET")
+            get
             {
-                ///链接形式1:"http://localhost:4050/assets/styles/style.css"表示访问指定文件资源，
-                ///此时读取服务器目录下的/assets/styles/style.css文件。
+                return index;
+            }
+            private set
+            {
+                this.index = value;
 
-                ///链接形式1:"http://localhost:4050/assets/styles/"表示访问指定页面资源，
-                ///此时读取服务器目录下的/assets/styles/style.index文件。
-
-                //当文件不存在时应返回404状态码
-                string requestURL = request.URL;
-                requestURL = requestURL.Replace("/", @"\").Replace("\\..", "");
-
-                //判断地址中是否存在扩展名
-                string extension = Path.GetExtension(requestURL);
-
-                //根据有无扩展名按照两种不同链接进行处
-                string requestFile = string.Empty;
-                if (extension != "")
-                {
-                    requestFile = ServerRoot + requestURL;
-                }
-                else
-                {
-                    requestFile = ServerRoot + requestURL + "index.html";
-                }
-
-                //构造HTTP响应
-                HttpResponse response = ResponseWithFile(requestFile);
-
-                //发送响应
-                ProcessResponse(request.Handler, response);
             }
         }
 
-        public override void OnListFiles()
-        {
+        /// <summary>
+        /// 是否开启目录列表
+        /// </summary>
+        public bool EnableList { get; set; }
 
+        ///// <summary>
+        ///// 构造函数
+        ///// </summary>
+        ///// <param name="ipAddress">IP地址</param>
+        ///// <param name="port">端口号</param>
+        //public WebServer(string ipAddress, int port)
+        //    : base(ipAddress, port)
+        //{
+
+        //}
+
+        ///// <summary>
+        ///// 构造函数
+        ///// </summary>
+        ///// <param name="ipAddress">IP地址</param>
+        ///// <param name="port">端口号</param>
+        //public WebServer(string ipAddresst)
+        //    : base(ipAddress)
+        //{
+
+        //}
+
+
+        public override void OnGet(HttpRequest request)
+        {
+            string requestURL = request.URL.Trim().TrimStart('/').Replace("/", @"\").Replace("\\..", "");
+            string requestFile = Path.Combine(ServerRoot, requestURL);
+            Console.WriteLine(requestFile);
+
+            //构造HTTP响应
+            HttpResponse response = null;
+
+            if (Directory.Exists(requestFile))//文件夹
+            {
+                requestFile = requestFile.TrimEnd('\\') + '\\';
+                if (EnableList && !File.Exists(requestFile + index))
+                {
+                    //列出目录
+                    response = ListFiles(requestFile, requestURL);
+                }
+                else
+                {
+                    requestFile += Path.Combine(requestFile, index);
+                    response = ResponseWithFile(requestFile);
+
+                }
+            }
+
+            if (null == response)
+            {
+                response = ResponseWithFile(requestFile);
+
+            }
+
+
+            //构造HTTP响应
+            response.Server = "FutureHTTP";
+
+            //发送响应
+            ProcessResponse(request.Handler, response);
+        }
+
+        private string ListString(string[] list)
+        {
+            // Enumerable.Aggregate(files, (pre, file) => String.Format("{0}<li><a href=\"{1}\">{1}</a></li>", pre, file.Trim(Path.PathSeparator)));
+            string text = "";
+            foreach (var l in list)
+            {
+                text += String.Format("<li><a href=\"{0}\">{0}</a></li>", l.Trim('\\'));
+            }
+            return text;
+
+        }
+
+        /// <summary>
+        /// 列出目录
+        /// </summary>
+        /// <param name="path"></param>
+        public HttpResponse ListFiles(string path, string h1)
+        {
+            string[] folders = { "../" };
+            folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
+            var files = Directory.GetFiles(path);
+
+            var listFolders = ListString(folders);
+
+            var listFiles = ListString(files);
+
+            var responseText = String.Format(
+                "<html><head><title>{0}</title></head><body><h1>{1}[目录]</h1><h2>文件列表</h2><hr/><ul>{2}</ul><br/><h2>目录列表</h2><hr/><ul>{3}</ul></body></html>",
+                path,
+                 h1,
+                listFiles,
+                listFolders
+             );
+            var response = new HttpResponse(responseText, Encoding.UTF8);
+            response.StatusCode = "200";
+            response.Content_Type = "text/html";
+            return response;
         }
 
         /// <summary>
@@ -70,12 +146,6 @@ namespace GUI
             //准备HTTP响应报文
             HttpResponse response;
 
-            //获取文件扩展名以判断内容类型
-            string extension = Path.GetExtension(fileName);
-
-            //获取当前内容类型
-            string contentType = GetContentType(extension);
-
             //如果文件不存在则返回404否则读取文件内容
             if (!File.Exists(fileName))
             {
@@ -86,10 +156,15 @@ namespace GUI
             }
             else
             {
+                //获取文件扩展名以判断内容类型
+                string extension = Path.GetExtension(fileName);
+
+                //获取当前内容类型
+                string contentType = GetContentType(extension);
+
                 response = new HttpResponse(File.ReadAllBytes(fileName), Encoding.UTF8);
                 response.StatusCode = "200";
                 response.Content_Type = contentType;
-                response.Server = "ExampleServer";
             }
 
             //返回数据

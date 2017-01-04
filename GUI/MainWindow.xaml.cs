@@ -24,6 +24,8 @@ namespace GUI
         public MainWindow()
         {
             InitializeComponent();
+            this.FolderText.Text = System.IO.Directory.GetCurrentDirectory();
+            webServer = new WebServer("0.0.0.0");
         }
 
         private void FolderButton_Click(object sender, RoutedEventArgs e)
@@ -40,11 +42,16 @@ namespace GUI
 
         private void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            var port = int.Parse( PortText.Text);
+            var port = int.Parse(PortText.Text);
             var path = this.FolderText.Text.Trim();
-            webServer = new WebServer("0.0.0.0", port);
-            webServer.SetServerRoot(path);
+            webServer.SetPort(port);
+            webServer.SetRoot(path);
             webServer.Start();
+        }
+
+        private void directoryList_Checked(object sender, RoutedEventArgs e)
+        {
+            webServer.EnableList = directoryList.IsChecked == true;
         }
     }
 }
