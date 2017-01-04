@@ -10,6 +10,11 @@ namespace GUI
     class WebServer : HttpServer
     {
         private string index = "index.html";
+
+        public WebServer(string ip) : base(ip)
+        {
+        }
+
         /// <summary>
         /// 默认文件
         /// </summary>
@@ -29,18 +34,30 @@ namespace GUI
         /// <summary>
         /// 是否开启目录列表
         /// </summary>
-        public bool EnableList { get; private set; }
+        public bool EnableList { get; set; }
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="ipAddress">IP地址</param>
-        /// <param name="port">端口号</param>
-        public WebServer(string ipAddress, int port)
-            : base(ipAddress, port)
-        {
+        ///// <summary>
+        ///// 构造函数
+        ///// </summary>
+        ///// <param name="ipAddress">IP地址</param>
+        ///// <param name="port">端口号</param>
+        //public WebServer(string ipAddress, int port)
+        //    : base(ipAddress, port)
+        //{
 
-        }
+        //}
+
+        ///// <summary>
+        ///// 构造函数
+        ///// </summary>
+        ///// <param name="ipAddress">IP地址</param>
+        ///// <param name="port">端口号</param>
+        //public WebServer(string ipAddresst)
+        //    : base(ipAddress)
+        //{
+
+        //}
+
 
         public override void OnGet(HttpRequest request)
         {
@@ -49,15 +66,15 @@ namespace GUI
             Console.WriteLine(requestFile);
 
             //构造HTTP响应
-            HttpResponse response;
+            HttpResponse response = null;
 
             if (Directory.Exists(requestFile))//文件夹
             {
                 requestFile = requestFile.TrimEnd('\\') + '\\';
-                if (!File.Exists(requestFile + index))
+                if (EnableList && !File.Exists(requestFile + index))
                 {
                     //列出目录
-                    response = ListFiles(requestFile);
+                    response = ListFiles(requestFile, requestURL);
                 }
                 else
                 {
@@ -66,10 +83,13 @@ namespace GUI
 
                 }
             }
-            else
+
+            if (null == response)
             {
                 response = ResponseWithFile(requestFile);
+
             }
+
 
             //构造HTTP响应
             response.Server = "FutureHTTP";
@@ -94,7 +114,7 @@ namespace GUI
         /// 列出目录
         /// </summary>
         /// <param name="path"></param>
-        public HttpResponse ListFiles(string path)
+        public HttpResponse ListFiles(string path, string h1)
         {
             string[] folders = { "../" };
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
@@ -107,7 +127,7 @@ namespace GUI
             var responseText = String.Format(
                 "<html><head><title>{0}</title></head><body><h1>{1}[目录]</h1><h2>文件列表</h2><hr/><ul>{2}</ul><br/><h2>目录列表</h2><hr/><ul>{3}</ul></body></html>",
                 path,
-                Path.GetDirectoryName(path),
+                 h1,
                 listFiles,
                 listFolders
              );

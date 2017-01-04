@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace HTTPServer
 {
-    public class HttpServer:IServer
+    public class HttpServer : IServer
     {
         /// <summary>
         /// 服务器IP
@@ -24,14 +24,17 @@ namespace HTTPServer
         public string ServerRoot { get; private set; }
 
         /// <summary>
+        /// 是否运行
+        /// </summary>
+        public bool IsRunning { get; private set; }
+
+
+        /// <summary>
         /// 服务端Socet
         /// </summary>
         private Socket serverSocket;
 
-        /// <summary>
-        /// 是否运行
-        /// </summary>
-        private bool isRunning = false;
+
 
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace HTTPServer
             this.ServerPort = port;
 
             //如果指定目录不存在则采用默认目录
-            if(!Directory.Exists(root))
+            if (!Directory.Exists(root))
                 this.ServerRoot = AppDomain.CurrentDomain.BaseDirectory;
 
             this.ServerRoot = root;
@@ -59,7 +62,8 @@ namespace HTTPServer
         /// <param name="port">端口号</param>
         /// <param name="root">根目录</param>
         public HttpServer(string ipAddress, int port, string root) :
-            this(IPAddress.Parse(ipAddress), port, root) { }
+            this(IPAddress.Parse(ipAddress), port, root)
+        { }
 
         /// <summary>
         /// 构造函数
@@ -67,7 +71,8 @@ namespace HTTPServer
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
         public HttpServer(string ipAddress, int port) :
-            this(IPAddress.Parse(ipAddress), port, AppDomain.CurrentDomain.BaseDirectory) { }
+            this(IPAddress.Parse(ipAddress), port, AppDomain.CurrentDomain.BaseDirectory)
+        { }
 
 
         /// <summary>
@@ -76,14 +81,25 @@ namespace HTTPServer
         /// <param name="port">端口号</param>
         /// <param name="root">根目录</param>
         public HttpServer(int port, string root) :
-            this(IPAddress.Loopback, port, root) { }
+            this(IPAddress.Loopback, port, root)
+        { }
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="port">端口号</param>
         public HttpServer(int port) :
-            this(IPAddress.Loopback, port, AppDomain.CurrentDomain.BaseDirectory) { }
+            this(IPAddress.Loopback, port, AppDomain.CurrentDomain.BaseDirectory)
+        { }
+
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="ip"></param>
+        public HttpServer(string ip) :
+            this(IPAddress.Parse(ip), 80, AppDomain.CurrentDomain.BaseDirectory)
+        { }
 
         #region 公开方法 
 
@@ -92,23 +108,23 @@ namespace HTTPServer
         /// </summary>
         public void Start()
         {
-            if(isRunning)
+            if (IsRunning)
                 return;
 
             //创建服务端Socket
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort));
             serverSocket.Listen(10);
-            isRunning = true;
+            IsRunning = true;
 
             //输出服务器状态
             Console.WriteLine("Sever is running at http://{0}:{1}/.", ServerIP, ServerPort);
 
             //连接客户端
-            while(isRunning)
+            while (IsRunning)
             {
                 Socket clientSocket = serverSocket.Accept();
-                Thread requestThread = new Thread(() =>{ ProcessRequest(clientSocket);});
+                Thread requestThread = new Thread(() => { ProcessRequest(clientSocket); });
                 requestThread.Start();
             }
         }
@@ -118,7 +134,7 @@ namespace HTTPServer
         /// </summary>
         public void Stop()
         {
-            isRunning = false;
+            IsRunning = false;
             serverSocket.Close();
         }
 
@@ -126,14 +142,30 @@ namespace HTTPServer
         /// 设置服务器目录
         /// </summary>
         /// <param name="root"></param>
-        public void SetServerRoot(string root)
+        public HttpServer SetRoot(string root)
         {
-            if(!Directory.Exists(root))
+            if (!Directory.Exists(root))
                 this.ServerRoot = AppDomain.CurrentDomain.BaseDirectory;
 
             this.ServerRoot = root;
+            return this;
         }
 
+
+        /// <summary>
+        /// 设置端口
+        /// </summary>
+        /// <param name="port">端口号int</param>
+        /// <returns></returns>
+        public HttpServer SetPort(int port)
+        {
+            if (port > 0)
+            {
+                this.ServerPort = port;
+            }
+
+            return this;
+        }
         #endregion
 
         #region 内部方法
@@ -147,12 +179,17 @@ namespace HTTPServer
             //构造请求报文
             HttpRequest request = new HttpRequest(handler);
 
-           //根据请求类型进行处理
-            if(request.Method == "GET"){
+            //根据请求类型进行处理
+            if (request.Method == "GET")
+            {
                 OnGet(request);
-            }else if(request.Method == "POST"){
+            }
+            else if (request.Method == "POST")
+            {
                 OnPost(request);
-            }else{
+            }
+            else
+            {
                 OnDefault();
             }
         }
@@ -235,7 +272,7 @@ namespace HTTPServer
         /// <param name="request">请求报文</param>
         public virtual void OnGet(HttpRequest request)
         {
-           
+
         }
 
         /// <summary>
@@ -244,16 +281,16 @@ namespace HTTPServer
         /// <param name="request"></param>
         public virtual void OnPost(HttpRequest request)
         {
-            
+
         }
 
         /// <summary>
         /// 响应默认请求
         /// </summary>
-        
+
         public virtual void OnDefault()
         {
-            
+
         }
 
         /// <summary>
