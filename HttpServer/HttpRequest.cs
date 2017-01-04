@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 
-namespace HttpServerLib
+namespace HTTPServer
 {
     /// <summary>
     /// HTTP请求定义

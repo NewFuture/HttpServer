@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Net;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 
-namespace HttpServerLib
+namespace HTTPServer
 {
     public class HttpServer:IServer
     {

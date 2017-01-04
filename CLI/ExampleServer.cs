@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using HttpServerLib;
-using System.IO;
+using HTTPServer;
 
-namespace HttpServer
+namespace CLI
 {
-    public class ExampleServer : HttpServerLib.HttpServer
+    public class ExampleServer : HTTPServer.HttpServer
     {
         /// <summary>
         /// 构造函数
