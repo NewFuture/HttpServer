@@ -5,16 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <DockPanel HorizontalAlignment="Left" Height="28.865" LastChildFill="False" VerticalAlignment="Top" Width="517">
-            <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Width="71.362" Height="28.865" HorizontalAlignment="Left" FontSize="14"><Run Text="服务端口"/><Run Text=":"/></TextBlock>
-            <TextBox x:Name="PortText" HorizontalAlignment="Left" Height="28.865" TextWrapping="Wrap" Text="1122" Width="51.738" FontSize="14"/>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" TextWrapping="Wrap" Height="26.383" Width="47.197" Margin="0,2.482,0,0" FontSize="14"><Run Text="目录"/><Run Text=":"/></TextBlock>
-            <TextBox x:Name="FolderText" Height="28.865" TextWrapping="Wrap" Text="./" Width="179.333" HorizontalAlignment="Left" FontSize="14"/>
-            <Button x:Name="FolderButton" Content="选择文件夹" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="28.865" Click="FolderButton_Click"/>
-            <Button x:Name="RunButton" Content="RUN" Height="28.865" VerticalAlignment="Top" Width="75" Click="RunButton_Click"/>
-        </DockPanel>
+        Title="HTTPServer" Height="350" Width="466.335">
+    <Grid Margin="0,0,2,0">
+        <DockPanel HorizontalAlignment="Left" Height="29" LastChildFill="False" VerticalAlignment="Top" Width="517" Margin="-40,10,-21,0"/>
+        <TextBox x:Name="PortText" HorizontalAlignment="Left" TextWrapping="Wrap" Text="1122" Width="92" FontSize="14" RenderTransformOrigin="1.126,6.055" Margin="91,16,0,269"/>
+        <TextBlock x:Name="directory" HorizontalAlignment="Left" TextWrapping="Wrap" Width="72" Margin="10,55,0,231" FontSize="15" FontWeight="Bold"><Run Text="服务"/><Run Text="目录"/><Run Text=":"/></TextBlock>
+        <TextBox x:Name="FolderText" TextWrapping="Wrap" Text="./" Width="200" HorizontalAlignment="Left" FontSize="14" Margin="89,55,0,231"/>
+        <Button x:Name="FolderButton" Content="选择文件夹" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Height="24" Click="FolderButton_Click" Margin="294,54,0,0"/>
+        <Button x:Name="RunButton" Content="RUN" Height="22" VerticalAlignment="Top" Click="RunButton_Click" Margin="294,16,88,0"/>
+        <TextBlock x:Name="port" TextWrapping="Wrap" Width="72" HorizontalAlignment="Center" FontSize="15" Margin="14,16,370,269" FontWeight="Bold"><Run Text="服务端口"/><Run Text=":"/></TextBlock>
+        <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="162,93,0,0" VerticalAlignment="Top" Height="22" Width="98" FontSize="15" FontWeight="Bold"/>
+        <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold"/>
+        <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="339,93,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="154" Margin="10,128,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="424"/>
 
     </Grid>
 </Window>
