@@ -117,12 +117,15 @@ namespace HTTPServer
         public void Start()
         {
             if (IsRunning)
+            {
                 return;
+            }
 
             //创建服务端Socket
             serverListener = new TcpListener(IPAddress.Parse(ServerIP), ServerPort);
             IsRunning = true;
             this.Log(String.Format("Sever is running at http://{0}:{1}/.", ServerIP, ServerPort));
+
             serverListener.Start();
             while (IsRunning)
             {
@@ -131,24 +134,7 @@ namespace HTTPServer
                 requestThread.Start();
             }
 
-            //new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort));
-            //serverSocket.Listen(10);
-            //IsRunning = true;
-
-            //输出服务器状态
-
-
-            ////连接客户端
-            //while (IsRunning)
-            //{
-            //    Socket clientSocket = serverSocket.Accept();
-            //    Thread requestThread = new Thread(() => { ProcessRequest(clientSocket); });
-            //    requestThread.Start();
-            //}
         }
-
-
 
 
         public void SetSSL(string certificate)
@@ -211,16 +197,16 @@ namespace HTTPServer
             //构造请求报文
             Stream clientStream = handler.GetStream();
             HttpRequest request = null;
-            //if (serverCertificate != null)
-            //{
-            //    SslStream clientStream = new SslStream(clientStream, false);
-            //    request = new HttpRequest(sslStream);
-            //}
-            //else
-            //{
-            //    request = new HttpRequest(clientStream);
-            //}
-            request = new HttpRequest(clientStream);
+            if (serverCertificate != null)
+            {
+                clientStream = ProcessSSL(clientStream);
+                if (clientStream == null)
+                {
+                    return;
+                }
+            }
+
+            request = new HttpRequest(clientStream, Log);
             HttpResponse response = new HttpResponse(clientStream);
             //根据请求类型进行处理
             if (request.Method == "GET")
@@ -238,54 +224,18 @@ namespace HTTPServer
         }
 
 
-        private byte[] ProcessSSL(SslStream sslStream)
+        private Stream ProcessSSL(Stream clientStream)
         {
-            byte[] message = null;
+            Stream stream = null;
             try
             {
-                sslStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
-                // Display the properties and settings for the authenticated stream.
-                //DisplaySecurityLevel(sslStream);
-                //DisplaySecurityServices(sslStream);
-                //DisplayCertificateInformation(sslStream);
-                //DisplayStreamProperties(sslStream);
+                SslStream sslStream = new SslStream(clientStream, false);
 
-                // Set timeouts for the read and write to 5 seconds.
+                sslStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
+
                 sslStream.ReadTimeout = 5000;
                 sslStream.WriteTimeout = 10000;
-                // Read a message from the client.   
-                //Console.WriteLine("Waiting for client message...");
-                //string messageData = ReadMessage(sslStream);
-
-                //byte[] buffer = new byte[2048];
-                //StringBuilder messageData = new StringBuilder();
-                //int bytes = -1;
-                //do
-                //{
-                //    // Read the client's test message.
-                //    bytes = sslStream.Read(buffer, 0, buffer.Length);
-
-                //    // Use Decoder class to convert from bytes to UTF8
-                //    // in case a character spans two buffers.
-                //    Decoder decoder = Encoding.UTF8.GetDecoder();
-                //    char[] chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
-                //    decoder.GetChars(buffer, 0, bytes, chars, 0);
-                //    messageData.Append(chars);
-                //    // Check for EOF or an empty message.
-                //    if (messageData.ToString().IndexOf("<EOF>") != -1)
-                //    {
-                //        break;
-                //    }
-                //} while (bytes != 0);
-
-                //return messageData.ToString();
-
-                //Console.WriteLine("Received: {0}", messageData);
-
-                //// Write a message to the client.
-                //message = Encoding.UTF8.GetBytes("Hello from the server.<EOF>");
-                //Console.WriteLine("Sending hello message.");
-                //sslStream.Write(message);
+                stream = sslStream;
             }
             catch (AuthenticationException e)
             {
@@ -294,16 +244,8 @@ namespace HTTPServer
                 {
                     Log("Inner exception: " + e.InnerException.Message);
                 }
-                message = null;
             }
-            finally
-            {
-                // The client stream will be closed with the sslStream
-                // because we specified this behavior when creating
-                // the sslStream.
-                sslStream.Close();
-            }
-            return message;
+            return stream;
         }
 
         /// <summary>
@@ -316,29 +258,6 @@ namespace HTTPServer
             Console.WriteLine(msg);
             return this;
         }
-
-        /// <summary>
-        /// 处理服务端响应
-        /// </summary>
-        /// <param name="handler">客户端Socket</param>
-        /// <param name="response">响应报文</param>
-        //protected void ProcessResponse(HttpResponse response)
-        //{
-        //    //构建响应头
-        //    byte[] header = response.Encoding.GetBytes(response.BuildHeader());
-
-        //    //发送响应头
-        //    handler.Send(header);
-
-        //    //发送空行
-        //    handler.Send(response.Encoding.GetBytes(System.Environment.NewLine));
-
-        //    //发送消息体
-        //    handler.Send(response.Content);
-
-        //    //结束会话
-        //    handler.Close();
-        //}
 
         /// <summary>
         /// 根据文件扩展名获取内容类型
