@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,15 +44,23 @@ namespace HTTPServer
         /// </summary>
         public Encoding Encoding { get; private set; }
 
+
+        private Stream handler;
+
+        public HttpResponse(Stream stream)
+        {
+            handler = stream;
+        }
+
         /// <summary>
-        /// 构造函数
+        /// 设置响应内容
         /// </summary>
         /// <param name="content">响应内容</param>
-        public HttpResponse(byte[] content,Encoding encoding)
+        public HttpResponse SetContent(byte[] content, Encoding encoding = null)
         {
             //初始化内容
             this.Content = content;
-            this.Encoding = encoding;
+            this.Encoding = encoding == null ? encoding : Encoding.UTF8;
 
             //初始化响应头部信息
             this.Age = "";
@@ -83,14 +92,15 @@ namespace HTTPServer
             this.Etag = "";
             this.Expires = "";
             this.Last_Modified = "";
+            return this;
         }
 
         /// <summary>
-        /// 构造函数
+        /// 设置响应内容
         /// </summary>
         /// <param name="content">响应内容</param>
         /// <param name="encoding">内容编码</param>
-        public HttpResponse(string content,Encoding encoding)
+        public HttpResponse SetContent(string content, Encoding encoding)
         {
             //初始化内容
             this.Content = encoding.GetBytes(content);
@@ -126,92 +136,115 @@ namespace HTTPServer
             this.Etag = "";
             this.Expires = "";
             this.Last_Modified = "";
+
+            return this;
         }
 
         /// <summary>
         /// 构建响应头部
         /// </summary>
         /// <returns></returns>
-        public string BuildHeader()
+        protected string BuildHeader()
         {
             StringBuilder builder = new StringBuilder();
 
-            if(!string.IsNullOrEmpty(StatusCode))
+            if (!string.IsNullOrEmpty(StatusCode))
                 builder.Append("HTTP/1.1 " + StatusCode + "\r\n");
 
-            if(!string.IsNullOrEmpty(Age))
+            if (!string.IsNullOrEmpty(Age))
                 builder.Append("Age:" + Age + "\r\n");
 
-            if(!string.IsNullOrEmpty(Server))
+            if (!string.IsNullOrEmpty(Server))
                 builder.Append("Sever:" + Server + "\r\n");
 
-            if(!string.IsNullOrEmpty(Accept_Ranges))
+            if (!string.IsNullOrEmpty(Accept_Ranges))
                 builder.Append("Accept-Ranges:" + Accept_Ranges + "\r\n");
 
-            if(!string.IsNullOrEmpty(Vary))
+            if (!string.IsNullOrEmpty(Vary))
                 builder.Append("Vary:" + Vary + "\r\n");
 
-            if(!string.IsNullOrEmpty(Vary))
+            if (!string.IsNullOrEmpty(Vary))
                 builder.Append("Vary:" + Vary + "\r\n");
 
-            if(!string.IsNullOrEmpty(Cache_Control))
+            if (!string.IsNullOrEmpty(Cache_Control))
                 builder.Append("Cache-Control:" + Cache_Control + "\r\n");
 
-            if(!string.IsNullOrEmpty(Pragma))
+            if (!string.IsNullOrEmpty(Pragma))
                 builder.Append("Pragma:" + Pragma + "\r\n");
 
-            if(!string.IsNullOrEmpty(Connection))
+            if (!string.IsNullOrEmpty(Connection))
                 builder.Append("Connection:" + Connection + "\r\n");
 
-            if(!string.IsNullOrEmpty(Date))
+            if (!string.IsNullOrEmpty(Date))
                 builder.Append("Date:" + Date + "\r\n");
 
-            if(!string.IsNullOrEmpty(Transfer_Encoding))
+            if (!string.IsNullOrEmpty(Transfer_Encoding))
                 builder.Append("Transfer-Encoding:" + Transfer_Encoding + "\r\n");
 
-            if(!string.IsNullOrEmpty(Upgrade))
+            if (!string.IsNullOrEmpty(Upgrade))
                 builder.Append("Upgrade:" + Upgrade + "\r\n");
 
-            if(!string.IsNullOrEmpty(Via))
+            if (!string.IsNullOrEmpty(Via))
                 builder.Append("Via:" + Via + "\r\n");
 
-            if(!string.IsNullOrEmpty(Allow))
+            if (!string.IsNullOrEmpty(Allow))
                 builder.Append("Allow:" + Allow + "\r\n");
 
-            if(!string.IsNullOrEmpty(Location))
+            if (!string.IsNullOrEmpty(Location))
                 builder.Append("Location:" + Location + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Base))
+            if (!string.IsNullOrEmpty(Content_Base))
                 builder.Append("Content-Base:" + Content_Base + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Encoding))
+            if (!string.IsNullOrEmpty(Content_Encoding))
                 builder.Append("Content-Encoding:" + Content_Encoding + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Length))
+            if (!string.IsNullOrEmpty(Content_Length))
                 builder.Append("Content-Length:" + Content_Length + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Location))
+            if (!string.IsNullOrEmpty(Content_Location))
                 builder.Append("Content-Location:" + Content_Location + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_MD5))
+            if (!string.IsNullOrEmpty(Content_MD5))
                 builder.Append("Content-MD5:" + Content_MD5 + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Range))
+            if (!string.IsNullOrEmpty(Content_Range))
                 builder.Append("Content_Range:" + Content_Range + "\r\n");
 
-            if(!string.IsNullOrEmpty(Content_Type))
+            if (!string.IsNullOrEmpty(Content_Type))
                 builder.Append("Content-Type:" + Content_Type + "\r\n");
 
-            if(!string.IsNullOrEmpty(Etag))
+            if (!string.IsNullOrEmpty(Etag))
                 builder.Append("Etag:" + Etag + "\r\n");
 
-            if(!string.IsNullOrEmpty(Expires))
+            if (!string.IsNullOrEmpty(Expires))
                 builder.Append("Expires:" + Expires + "\r\n");
 
-            if(!string.IsNullOrEmpty(Last_Modified))
+            if (!string.IsNullOrEmpty(Last_Modified))
                 builder.Append("Last-Modified :" + Last_Modified + "\r\n");
 
             return builder.ToString();
+        }
+
+
+        public HttpResponse Send()
+        {
+            //构建响应头
+            byte[] header = this.Encoding.GetBytes(BuildHeader());
+            handler.Write(header, 0, header.Length);
+
+            //发送响应头
+            //handler.Send(header);
+
+            //发送空行
+            byte[] line = this.Encoding.GetBytes(System.Environment.NewLine);
+            handler.Write(line, 0, line.Length);
+
+            handler.Write(Content, 0, Content.Length);
+
+            //结束会话
+            handler.Close();
+            return this;
         }
     }
 }

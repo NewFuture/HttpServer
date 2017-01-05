@@ -59,14 +59,12 @@ namespace GUI
         //}
 
 
-        public override void OnGet(HttpRequest request)
+        public override void OnGet(HttpRequest request, HttpResponse response)
         {
             string requestURL = request.URL.Trim().TrimStart('/').Replace("/", @"\").Replace("\\..", "");
             string requestFile = Path.Combine(ServerRoot, requestURL);
             Console.WriteLine(requestFile);
 
-            //构造HTTP响应
-            HttpResponse response = null;
 
             if (Directory.Exists(requestFile))//文件夹
             {
@@ -74,28 +72,26 @@ namespace GUI
                 if (EnableList && !File.Exists(requestFile + index))
                 {
                     //列出目录
-                    response = ListFiles(requestFile, requestURL);
+                    response.SetContent(ListFiles(requestFile, requestURL), Encoding.UTF8);
+                    response.StatusCode = "200";
+                    response.Content_Type = "text/html";
                 }
                 else
                 {
                     requestFile += Path.Combine(requestFile, index);
-                    response = ResponseWithFile(requestFile);
-
                 }
             }
 
-            if (null == response)
+            if (response.StatusCode != "200")
             {
-                response = ResponseWithFile(requestFile);
-
+                ResponseWithFile(requestFile, response);
             }
-
 
             //构造HTTP响应
             response.Server = "FutureHTTP";
 
             //发送响应
-            ProcessResponse(request.Handler, response);
+            response.Send();
         }
 
         private string ListString(string[] list)
@@ -114,7 +110,7 @@ namespace GUI
         /// 列出目录
         /// </summary>
         /// <param name="path"></param>
-        public HttpResponse ListFiles(string path, string h1)
+        public string ListFiles(string path, string h1)
         {
             string[] folders = { "../" };
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
@@ -131,25 +127,24 @@ namespace GUI
                 listFiles,
                 listFolders
              );
-            var response = new HttpResponse(responseText, Encoding.UTF8);
-            response.StatusCode = "200";
-            response.Content_Type = "text/html";
-            return response;
+            //var response = new HttpResponse(responseText, Encoding.UTF8);
+            //return response;
+            return responseText;
         }
 
         /// <summary>
         /// 使用文件来提供HTTP响应
         /// </summary>
         /// <param name="fileName">文件名</param>
-        private HttpResponse ResponseWithFile(string fileName)
+        private HttpResponse ResponseWithFile(string fileName, HttpResponse response)
         {
             //准备HTTP响应报文
-            HttpResponse response;
+            //HttpResponse response;
 
             //如果文件不存在则返回404否则读取文件内容
             if (!File.Exists(fileName))
             {
-                response = new HttpResponse("<html><body><h1>404 - Not Found</h1></body></html>", Encoding.UTF8);
+                response.SetContent("<html><body><h1>404 - Not Found</h1></body></html>", Encoding.UTF8);
                 response.StatusCode = "404";
                 response.Content_Type = "text/html";
                 response.Server = "ExampleServer";
@@ -161,8 +156,7 @@ namespace GUI
 
                 //获取当前内容类型
                 string contentType = GetContentType(extension);
-
-                response = new HttpResponse(File.ReadAllBytes(fileName), Encoding.UTF8);
+                response = response.SetContent(File.ReadAllBytes(fileName), Encoding.UTF8);
                 response.StatusCode = "200";
                 response.Content_Type = contentType;
             }

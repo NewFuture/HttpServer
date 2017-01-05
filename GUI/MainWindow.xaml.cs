@@ -23,9 +23,9 @@ namespace GUI
         private WebServer webServer;
         public MainWindow()
         {
+            webServer = new WebServer("0.0.0.0");
             InitializeComponent();
             this.FolderText.Text = System.IO.Directory.GetCurrentDirectory();
-            webServer = new WebServer("0.0.0.0");
         }
 
         private void FolderButton_Click(object sender, RoutedEventArgs e)

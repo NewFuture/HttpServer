@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace HTTPServer
@@ -32,10 +35,15 @@ namespace HTTPServer
         /// <summary>
         /// 服务端Socet
         /// </summary>
-        private Socket serverSocket;
+        //private Socket serverSocket;
+        public TcpListener serverListener { get; private set; }
 
 
 
+        /// <summary>
+        /// SSL证书
+        /// </summary>
+        private X509Certificate serverCertificate = null;
 
         /// <summary>
         /// 构造函数
@@ -112,30 +120,54 @@ namespace HTTPServer
                 return;
 
             //创建服务端Socket
-            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort));
-            serverSocket.Listen(10);
+            serverListener = new TcpListener(IPAddress.Parse(ServerIP), ServerPort);
             IsRunning = true;
-
-            //输出服务器状态
-            Console.WriteLine("Sever is running at http://{0}:{1}/.", ServerIP, ServerPort);
-
-            //连接客户端
+            this.Log(String.Format("Sever is running at http://{0}:{1}/.", ServerIP, ServerPort));
+            serverListener.Start();
             while (IsRunning)
             {
-                Socket clientSocket = serverSocket.Accept();
-                Thread requestThread = new Thread(() => { ProcessRequest(clientSocket); });
+                TcpClient client = serverListener.AcceptTcpClient();
+                Thread requestThread = new Thread(() => { ProcessRequest(client); });
                 requestThread.Start();
             }
+
+            //new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort));
+            //serverSocket.Listen(10);
+            //IsRunning = true;
+
+            //输出服务器状态
+
+
+            ////连接客户端
+            //while (IsRunning)
+            //{
+            //    Socket clientSocket = serverSocket.Accept();
+            //    Thread requestThread = new Thread(() => { ProcessRequest(clientSocket); });
+            //    requestThread.Start();
+            //}
         }
 
+
+
+
+        public void SetSSL(string certificate)
+        {
+            var serverCertificate = X509Certificate.CreateFromCertFile(certificate);
+
+        }
+
+        public void SetSSL(X509Certificate certifiate)
+        {
+            this.serverCertificate = certifiate;
+        }
         /// <summary>
         /// 停止服务器
         /// </summary>
         public void Stop()
         {
             IsRunning = false;
-            serverSocket.Close();
+            serverListener.Stop();
         }
 
         /// <summary>
@@ -174,24 +206,115 @@ namespace HTTPServer
         /// 处理客户端请求
         /// </summary>
         /// <param name="handler">客户端Socket</param>
-        private void ProcessRequest(Socket handler)
+        private void ProcessRequest(TcpClient handler)
         {
             //构造请求报文
-            HttpRequest request = new HttpRequest(handler);
-
+            Stream clientStream = handler.GetStream();
+            HttpRequest request = null;
+            //if (serverCertificate != null)
+            //{
+            //    SslStream clientStream = new SslStream(clientStream, false);
+            //    request = new HttpRequest(sslStream);
+            //}
+            //else
+            //{
+            //    request = new HttpRequest(clientStream);
+            //}
+            request = new HttpRequest(clientStream);
+            HttpResponse response = new HttpResponse(clientStream);
             //根据请求类型进行处理
             if (request.Method == "GET")
             {
-                OnGet(request);
+                OnGet(request, response);
             }
             else if (request.Method == "POST")
             {
-                OnPost(request);
+                OnPost(request, response);
             }
             else
             {
-                OnDefault();
+                OnDefault(request, response);
             }
+        }
+
+
+        private byte[] ProcessSSL(SslStream sslStream)
+        {
+            byte[] message = null;
+            try
+            {
+                sslStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
+                // Display the properties and settings for the authenticated stream.
+                //DisplaySecurityLevel(sslStream);
+                //DisplaySecurityServices(sslStream);
+                //DisplayCertificateInformation(sslStream);
+                //DisplayStreamProperties(sslStream);
+
+                // Set timeouts for the read and write to 5 seconds.
+                sslStream.ReadTimeout = 5000;
+                sslStream.WriteTimeout = 10000;
+                // Read a message from the client.   
+                //Console.WriteLine("Waiting for client message...");
+                //string messageData = ReadMessage(sslStream);
+
+                //byte[] buffer = new byte[2048];
+                //StringBuilder messageData = new StringBuilder();
+                //int bytes = -1;
+                //do
+                //{
+                //    // Read the client's test message.
+                //    bytes = sslStream.Read(buffer, 0, buffer.Length);
+
+                //    // Use Decoder class to convert from bytes to UTF8
+                //    // in case a character spans two buffers.
+                //    Decoder decoder = Encoding.UTF8.GetDecoder();
+                //    char[] chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
+                //    decoder.GetChars(buffer, 0, bytes, chars, 0);
+                //    messageData.Append(chars);
+                //    // Check for EOF or an empty message.
+                //    if (messageData.ToString().IndexOf("<EOF>") != -1)
+                //    {
+                //        break;
+                //    }
+                //} while (bytes != 0);
+
+                //return messageData.ToString();
+
+                //Console.WriteLine("Received: {0}", messageData);
+
+                //// Write a message to the client.
+                //message = Encoding.UTF8.GetBytes("Hello from the server.<EOF>");
+                //Console.WriteLine("Sending hello message.");
+                //sslStream.Write(message);
+            }
+            catch (AuthenticationException e)
+            {
+                Log("Authentication failed - closing the connection: " + e.Message);
+                if (e.InnerException != null)
+                {
+                    Log("Inner exception: " + e.InnerException.Message);
+                }
+                message = null;
+            }
+            finally
+            {
+                // The client stream will be closed with the sslStream
+                // because we specified this behavior when creating
+                // the sslStream.
+                sslStream.Close();
+            }
+            return message;
+        }
+
+        /// <summary>
+        /// 记录日志
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        protected HttpServer Log(string msg)
+        {
+            Console.WriteLine(msg);
+            return this;
         }
 
         /// <summary>
@@ -199,23 +322,23 @@ namespace HTTPServer
         /// </summary>
         /// <param name="handler">客户端Socket</param>
         /// <param name="response">响应报文</param>
-        protected void ProcessResponse(Socket handler, HttpResponse response)
-        {
-            //构建响应头
-            byte[] header = response.Encoding.GetBytes(response.BuildHeader());
+        //protected void ProcessResponse(HttpResponse response)
+        //{
+        //    //构建响应头
+        //    byte[] header = response.Encoding.GetBytes(response.BuildHeader());
 
-            //发送响应头
-            handler.Send(header);
+        //    //发送响应头
+        //    handler.Send(header);
 
-            //发送空行
-            handler.Send(response.Encoding.GetBytes(System.Environment.NewLine));
+        //    //发送空行
+        //    handler.Send(response.Encoding.GetBytes(System.Environment.NewLine));
 
-            //发送消息体
-            handler.Send(response.Content);
+        //    //发送消息体
+        //    handler.Send(response.Content);
 
-            //结束会话
-            handler.Close();
-        }
+        //    //结束会话
+        //    handler.Close();
+        //}
 
         /// <summary>
         /// 根据文件扩展名获取内容类型
@@ -270,7 +393,7 @@ namespace HTTPServer
         /// 响应Get请求
         /// </summary>
         /// <param name="request">请求报文</param>
-        public virtual void OnGet(HttpRequest request)
+        public virtual void OnGet(HttpRequest request, HttpResponse response)
         {
 
         }
@@ -279,7 +402,7 @@ namespace HTTPServer
         /// 响应Post请求
         /// </summary>
         /// <param name="request"></param>
-        public virtual void OnPost(HttpRequest request)
+        public virtual void OnPost(HttpRequest request, HttpResponse response)
         {
 
         }
@@ -288,15 +411,7 @@ namespace HTTPServer
         /// 响应默认请求
         /// </summary>
 
-        public virtual void OnDefault()
-        {
-
-        }
-
-        /// <summary>
-        /// 列取目录
-        /// </summary>
-        public virtual void OnListFiles()
+        public virtual void OnDefault(HttpRequest request, HttpResponse response)
         {
 
         }

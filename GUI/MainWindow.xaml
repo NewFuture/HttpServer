@@ -13,8 +13,8 @@
         <TextBox x:Name="FolderText" TextWrapping="Wrap" Text=".\" Width="459" Height="30" HorizontalAlignment="Left" FontSize="15" Margin="91,58,0,231"/>
         <Button x:Name="FolderButton" Content="选择文件夹" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Height="24" Click="FolderButton_Click" Margin="375,16,0,0"/>
         <Button x:Name="RunButton" Content="RUN" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Click="RunButton_Click" Margin="476,16,0,0" Width="74"/>
-        <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="233,101,0,0" VerticalAlignment="Top" Height="22" Width="98" FontSize="15" FontWeight="Bold"/>
-        <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="directoryList_Checked"/>
+        <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="233,101,0,0" VerticalAlignment="Top" Height="22" Width="98" FontSize="15" FontWeight="Bold" IsChecked="True"/>
+        <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="directoryList_Checked" IsChecked="True"/>
         <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="476,101,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold"/>
         <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="171" Margin="10,128,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
 

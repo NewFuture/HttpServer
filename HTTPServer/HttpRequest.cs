@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.IO;
 
 namespace HTTPServer
 {
+    public delegate string LogDelegate(string str);
     /// <summary>
     /// HTTP请求定义
     /// </summary>
@@ -110,12 +112,14 @@ namespace HTTPServer
         /// <summary>
         /// 请求Socket
         /// </summary>
-        public Socket Handler { get; private set; }
+        //public Socket Handler { get; private set; }
 
+
+        const int MAX_SIZE = 1024 * 1024 * 2;
         /// <summary>
         /// 定义缓冲区
         /// </summary>
-        private byte[] bytes = new byte[1024 * 1024 * 2];
+        private byte[] bytes = new byte[MAX_SIZE];
 
         /// <summary>
         /// 客户端请求报文
@@ -126,41 +130,47 @@ namespace HTTPServer
         /// 构造函数
         /// </summary>
         /// <param name="handler">客户端Socket</param>
-        public HttpRequest(Socket handler)
+        public HttpRequest(Stream handler, LogDelegate log = null)
         {
             //解析客户端请求
-            int length = handler.Receive(bytes);
-            string content = Encoding.UTF8.GetString(bytes, 0, length);
+            ////int length = handler.Receive(bytes);
+            //string content = Encoding.UTF8.GetString(bytes, 0, length);
 
+            //string len
+            int length = handler.Read(bytes, 0, MAX_SIZE);
             //缓存客户端请求报文
-            this.content = content;
+            content = Encoding.UTF8.GetString(bytes, 0, length);
 
+            log?.Invoke(content);
             //按行分割请求报文
             string[] lines = content.Split('\n');
 
             //获取请求方法
-            this.Method =  lines[0] == "" ? "" : lines[0].Split(' ')[0];
+            this.Method = lines[0] == "" ? "" : lines[0].Split(' ')[0];
 
             //获取请求地址
             this.URL = lines[0] == "" ? "" : lines[0].Split(' ')[1];
 
             //获取请求参数
-            if(this.Method == "GET" && this.URL.Contains('?')){
+            if (this.Method == "GET" && this.URL.Contains('?'))
+            {
                 this.Params = GetRequestParams(lines[0].Split(' ')[1].Split('?')[1]);
-            }else if(this.Method == "POST"){
-                this.Params = GetRequestParams(lines[lines.Length-1]);
+            }
+            else if (this.Method == "POST")
+            {
+                this.Params = GetRequestParams(lines[lines.Length - 1]);
             }
 
             //获取请求Socket
-            this.Handler = handler;
+            //this.Handler = handler;
 
             //获取各种请求报文参数
             this.AcceptTypes = GetKeyValueArrayByKey(content, "Accept");
             this.AcceptCharset = GetKeyValueArrayByKey(content, "Accept-Charset");
             this.AcceptEncoding = GetKeyValueArrayByKey(content, "Accept-Encoding");
             this.AcceptLanguage = GetKeyValueArrayByKey(content, "Accept-Langauge");
-            this.Authorization =  GetKeyValueByKey(content, "Authorization");
-            this.If_Match = GetKeyValueByKey(content,"If-Match");
+            this.Authorization = GetKeyValueByKey(content, "Authorization");
+            this.If_Match = GetKeyValueByKey(content, "If-Match");
             this.If_None_Match = GetKeyValueByKey(content, "If-None-Match");
             this.If_Modified_Since = GetKeyValueByKey(content, "If-Modified-Since");
             this.If_Unmodified_Since = GetKeyValueByKey(content, "If-Unmodified-Since");
