@@ -136,19 +136,34 @@ namespace HTTPServer
             //string content = Encoding.UTF8.GetString(bytes, 0, length);
 
             //string len
-            int length = handler.Read(bytes, 0, MAX_SIZE);
-            //缓存客户端请求报文
-            content = Encoding.UTF8.GetString(bytes, 0, length);
+            int length = 0;
+
+            do
+            {
+                length = handler.Read(bytes, 0, MAX_SIZE - 1);
+                //缓存客户端请求报文
+                content += Encoding.UTF8.GetString(bytes, 0, length);
+            } while (length > 0&&!content.EndsWith("\r\n\r\n"));
+
+            if (String.IsNullOrEmpty(content))
+            {
+                return;
+            }
 
             log?.Invoke(content);
             //按行分割请求报文
             string[] lines = content.Split('\n');
 
             //获取请求方法
-            this.Method = lines[0] == "" ? "" : lines[0].Split(' ')[0];
-
-            //获取请求地址
-            this.URL = lines[0] == "" ? "" : lines[0].Split(' ')[1];
+            var firstLine = lines[0].Split(' ');
+            if (firstLine.Length > 0)
+            {
+                this.Method = firstLine[0];
+            }
+            if (firstLine.Length > 1)
+            {
+                this.URL = firstLine[1];
+            }
 
             //获取请求参数
             if (this.Method == "GET" && this.URL.Contains('?'))

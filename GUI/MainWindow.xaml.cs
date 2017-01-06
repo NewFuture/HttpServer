@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace GUI
 {
@@ -48,6 +49,27 @@ namespace GUI
             var path = this.FolderText.Text.Trim();
             this.LogText.Text = String.Format("Web Server is running on port {0}.\nThe root path is {1}\n", port, path);
             Task.Run(() => this.Run(port, path));
+
+            //HttpListener listener = new HttpListener();
+            //listener.Prefixes.Add("http://127.0.0.1:8080/");
+            //listener.Start();
+            //Console.WriteLine("Listening...");
+            //// Note: The GetContext method blocks while waiting for a request. 
+            //HttpListenerContext context = listener.GetContext();
+            //HttpListenerRequest request = context.Request;
+            //// Obtain a response object.
+            //HttpListenerResponse response = context.Response;
+            //// Construct a response.
+            //string responseString = "<HTML><BODY> Hello world!</BODY></HTML>";
+            //byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+            //// Get a response stream and write the response to it.
+            //response.ContentLength64 = buffer.Length;
+            //System.IO.Stream output = response.OutputStream;
+            //output.Write(buffer, 0, buffer.Length);
+            //// You must close the output stream.
+            //output.Close();
+            //listener.Stop();
+
         }
 
         private void directoryList_Checked(object sender, RoutedEventArgs e)
@@ -65,6 +87,7 @@ namespace GUI
             webServer.SetPort(port)
               .SetRoot(path)
               .SetListener(LogMsg)
+              .SetSSL(@"D:\code\HttpServer\ssl\ssl.pfx")
               .Start();
         }
         /// <summary>
@@ -74,7 +97,7 @@ namespace GUI
         /// <returns></returns>
         private DispatcherOperation LogMsg(string msg)
         {
-            return this.Dispatcher.BeginInvoke(new Action(() => LogText.Text += msg));
+            return this.Dispatcher.BeginInvoke(new Action(() => LogText.Text += "\n" + msg));
         }
     }
 }

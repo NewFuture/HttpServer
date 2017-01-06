@@ -236,6 +236,11 @@ namespace HTTPServer
 
         public HttpResponse Send()
         {
+            if (!handler.CanWrite)
+            {
+                Console.WriteLine("can not write");
+                return null;
+            }
             //构建响应头
             byte[] header = this.Encoding.GetBytes(BuildHeader());
             handler.Write(header, 0, header.Length);

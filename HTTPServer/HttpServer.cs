@@ -139,15 +139,17 @@ namespace HTTPServer
         }
 
 
-        public void SetSSL(string certificate)
+        public HttpServer SetSSL(string certificate)
         {
-            var serverCertificate = X509Certificate.CreateFromCertFile(certificate);
+            this.serverCertificate = X509Certificate.CreateFromCertFile(certificate);
+            return this;
 
         }
 
-        public void SetSSL(X509Certificate certifiate)
+        public HttpServer SetSSL(X509Certificate certifiate)
         {
             this.serverCertificate = certifiate;
+            return this;
         }
         /// <summary>
         /// 停止服务器
@@ -232,18 +234,22 @@ namespace HTTPServer
         }
 
 
+        /// <summary>
+        /// 处理ssl加密请求
+        /// </summary>
+        /// <param name="clientStream"></param>
+        /// <returns></returns>
         private Stream ProcessSSL(Stream clientStream)
         {
-            Stream stream = null;
             try
             {
-                SslStream sslStream = new SslStream(clientStream, false);
+                SslStream sslStream = new SslStream(clientStream);
 
                 sslStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
 
-                sslStream.ReadTimeout = 5000;
+                sslStream.ReadTimeout = 10000;
                 sslStream.WriteTimeout = 10000;
-                stream = sslStream;
+                return sslStream;
             }
             catch (AuthenticationException e)
             {
@@ -252,8 +258,15 @@ namespace HTTPServer
                 {
                     Log("Inner exception: " + e.InnerException.Message);
                 }
+                clientStream.Close();
             }
-            return stream;
+            catch (Exception e)
+            {
+                Log("Authentication failed - closing the connection: " + e.Message);
+                clientStream.Close();
+
+            }
+            return null;
         }
 
         /// <summary>
