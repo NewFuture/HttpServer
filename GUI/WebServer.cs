@@ -41,8 +41,7 @@ namespace GUI
         {
             string requestURL = request.URL.Trim().TrimStart('/').Replace("/", @"\").Replace("\\..", "");
             string requestFile = Path.Combine(ServerRoot, requestURL);
-            Console.WriteLine(requestFile);
-
+            Log(requestFile);
 
             if (Directory.Exists(requestFile))//文件夹
             {
@@ -51,8 +50,8 @@ namespace GUI
                 {
                     //列出目录
                     response.SetContent(ListFiles(requestFile, requestURL), Encoding.UTF8);
-                    response.StatusCode = "200";
                     response.Content_Type = "text/html";
+                    return;
                 }
                 else
                 {
@@ -60,18 +59,50 @@ namespace GUI
                 }
             }
 
-            if (response.StatusCode != "200")
-            {
-                ResponseWithFile(requestFile, response);
-            }
+            ResponseWithFile(requestFile, response);
 
-            //构造HTTP响应
-            response.Server = "FutureHTTP";
-
-            //发送响应
-            response.Send();
         }
 
+
+        /// <summary>
+        /// POST
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="response"></param>
+        public override void OnPost(HttpRequest request, HttpResponse response)
+        {
+            string s = string.Join(";", request.Params.Select(x => x.Key + "=" + x.Value).ToArray());
+            response.SetContent(s, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 其他操作
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="response"></param>
+        public override void OnDefault(HttpRequest request, HttpResponse response)
+        {
+            if (request.Method == "HEAD")
+            {
+                response.SetContent("");
+            }
+            else if (request.Method == "DELE")
+            {
+                response.SetContent("DELE: " + request.URL);
+            }
+            else
+            {
+                response.StatusCode = "405";
+                response.SetContent("405 Method Not Allowed:" + request.Method);
+            }
+        }
+
+
+        /// <summary>
+        /// 拼接字符串
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
         private string ListString(string[] list)
         {
             // Enumerable.Aggregate(files, (pre, file) => String.Format("{0}<li><a href=\"{1}\">{1}</a></li>", pre, file.Trim(Path.PathSeparator)));
@@ -88,7 +119,7 @@ namespace GUI
         /// 列出目录
         /// </summary>
         /// <param name="path"></param>
-        public string ListFiles(string path, string h1)
+        private string ListFiles(string path, string h1)
         {
             string[] folders = { "../" };
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();

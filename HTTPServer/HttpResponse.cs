@@ -57,6 +57,38 @@ namespace HTTPServer
         public HttpResponse(Stream stream)
         {
             handler = stream;
+            //构造HTTP响应
+            this.Server = "FutureHTTP";
+            this.StatusCode = "200";
+            //初始化响应头部信息
+            this.Age = "";
+            this.Accept_Ranges = "";
+            this.Vary = "";
+
+            //设置HTTP通用头信息
+            this.Cache_Control = "";
+            this.Pragma = "";
+            this.Connection = "";
+            this.Date = "";
+            this.Transfer_Encoding = "";
+            this.Upgrade = "";
+            this.Via = "";
+
+            //设置HTTP实体头部信息
+            this.Allow = "";
+            this.Location = "";
+            this.Content_Base = "";
+            this.Content_Encoding = "";
+            this.Content_Language = "";
+
+            this.Content_Location = "";
+            this.Content_MD5 = "";
+            this.Content_Range = "";
+            this.Content_Type = "";
+            this.Etag = "";
+            this.Expires = "";
+            this.Last_Modified = "";
+
         }
 
         /// <summary>
@@ -69,36 +101,8 @@ namespace HTTPServer
             this.Content = content;
             this.Encoding = encoding == null ? encoding : Encoding.UTF8;
 
-            //初始化响应头部信息
-            this.Age = "";
-            this.Server = "";
-            this.Accept_Ranges = "";
-            this.Vary = "";
-            this.StatusCode = "";
 
-            //设置HTTP通用头信息
-            this.Cache_Control = "";
-            this.Pragma = "";
-            this.Connection = "";
-            this.Date = "";
-            this.Transfer_Encoding = "";
-            this.Upgrade = "";
-            this.Via = "";
-
-            //设置HTTP实体头部信息
-            this.Allow = "";
-            this.Location = "";
-            this.Content_Base = "";
-            this.Content_Encoding = "";
-            this.Content_Language = "";
             this.Content_Length = Content.Length.ToString();
-            this.Content_Location = "";
-            this.Content_MD5 = "";
-            this.Content_Range = "";
-            this.Content_Type = "";
-            this.Etag = "";
-            this.Expires = "";
-            this.Last_Modified = "";
             return this;
         }
 
@@ -107,44 +111,10 @@ namespace HTTPServer
         /// </summary>
         /// <param name="content">响应内容</param>
         /// <param name="encoding">内容编码</param>
-        public HttpResponse SetContent(string content, Encoding encoding)
+        public HttpResponse SetContent(string content, Encoding encoding = null)
         {
             //初始化内容
-            this.Content = encoding.GetBytes(content);
-            this.Encoding = encoding;
-
-            //初始化响应头部信息
-            this.Age = "";
-            this.Server = "";
-            this.Accept_Ranges = "";
-            this.Vary = "";
-            this.StatusCode = "";
-
-            //设置HTTP通用头信息
-            this.Cache_Control = "";
-            this.Pragma = "";
-            this.Connection = "";
-            this.Date = "";
-            this.Transfer_Encoding = "";
-            this.Upgrade = "";
-            this.Via = "";
-
-            //设置HTTP实体头部信息
-            this.Allow = "";
-            this.Location = "";
-            this.Content_Base = "";
-            this.Content_Encoding = "";
-            this.Content_Language = "";
-            this.Content_Length = Content.Length.ToString();
-            this.Content_Location = "";
-            this.Content_MD5 = "";
-            this.Content_Range = "";
-            this.Content_Type = "";
-            this.Etag = "";
-            this.Expires = "";
-            this.Last_Modified = "";
-
-            return this;
+            return SetContent(encoding.GetBytes(content), encoding);
         }
 
         /// <summary>

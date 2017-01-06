@@ -194,6 +194,14 @@ namespace HTTPServer
 
             return this;
         }
+
+
+        public HttpServer DelSSL()
+        {
+            this.serverCertificate = null;
+            return this;
+        }
+
         #endregion
 
         #region 内部方法
@@ -218,6 +226,8 @@ namespace HTTPServer
 
             request = new HttpRequest(clientStream, Log);
             HttpResponse response = new HttpResponse(clientStream);
+
+
             //根据请求类型进行处理
             if (request.Method == "GET")
             {
@@ -231,6 +241,8 @@ namespace HTTPServer
             {
                 OnDefault(request, response);
             }
+            //发送响应
+            response.Send();
         }
 
 
