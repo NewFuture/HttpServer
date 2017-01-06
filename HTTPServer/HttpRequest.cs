@@ -8,7 +8,6 @@ using System.IO;
 
 namespace HTTPServer
 {
-    public delegate object LogDelegate(string str);
     /// <summary>
     /// HTTP请求定义
     /// </summary>

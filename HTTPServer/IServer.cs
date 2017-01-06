@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace HTTPServer
 {
+    /// <summary>
+    /// 日志记录回掉
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public delegate object LogDelegate(string str);
+
+
     public interface IServer
     {
         /// <summary>

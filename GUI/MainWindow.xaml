@@ -16,7 +16,7 @@
         <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="233,101,0,0" VerticalAlignment="Top" Height="22" Width="98" FontSize="15" FontWeight="Bold" IsChecked="True"/>
         <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="directoryList_Checked" IsChecked="True"/>
         <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="476,101,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="171" Margin="10,128,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
+        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="171" Margin="10,128,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
 
     </Grid>
 </Window>

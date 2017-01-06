@@ -45,8 +45,15 @@ namespace HTTPServer
         public Encoding Encoding { get; private set; }
 
 
+        /// <summary>
+        /// 数据输出流
+        /// </summary>
         private Stream handler;
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="stream"></param>
         public HttpResponse(Stream stream)
         {
             handler = stream;

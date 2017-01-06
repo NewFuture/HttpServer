@@ -34,29 +34,7 @@ namespace GUI
         /// <summary>
         /// 是否开启目录列表
         /// </summary>
-        public bool EnableList { get; set; }
-
-        ///// <summary>
-        ///// 构造函数
-        ///// </summary>
-        ///// <param name="ipAddress">IP地址</param>
-        ///// <param name="port">端口号</param>
-        //public WebServer(string ipAddress, int port)
-        //    : base(ipAddress, port)
-        //{
-
-        //}
-
-        ///// <summary>
-        ///// 构造函数
-        ///// </summary>
-        ///// <param name="ipAddress">IP地址</param>
-        ///// <param name="port">端口号</param>
-        //public WebServer(string ipAddresst)
-        //    : base(ipAddress)
-        //{
-
-        //}
+        public bool ListEnable { get; set; }
 
 
         public override void OnGet(HttpRequest request, HttpResponse response)
@@ -69,7 +47,7 @@ namespace GUI
             if (Directory.Exists(requestFile))//文件夹
             {
                 requestFile = requestFile.TrimEnd('\\') + '\\';
-                if (EnableList && !File.Exists(requestFile + index))
+                if (ListEnable && !File.Exists(requestFile + index))
                 {
                     //列出目录
                     response.SetContent(ListFiles(requestFile, requestURL), Encoding.UTF8);

@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
+using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace GUI
 {
@@ -44,14 +46,35 @@ namespace GUI
         {
             var port = int.Parse(PortText.Text);
             var path = this.FolderText.Text.Trim();
-            webServer.SetPort(port);
-            webServer.SetRoot(path);
-            webServer.Start();
+            this.LogText.Text = String.Format("Web Server is running on port {0}.\nThe root path is {1}\n", port, path);
+            Task.Run(() => this.Run(port, path));
         }
 
         private void directoryList_Checked(object sender, RoutedEventArgs e)
         {
-            webServer.EnableList = directoryList.IsChecked == true;
+            webServer.ListEnable = directoryList.IsChecked == true;
+        }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="path"></param>
+        private void Run(int port, string path)
+        {
+            webServer.SetPort(port)
+              .SetRoot(path)
+              .SetListener(LogMsg)
+              .Start();
+        }
+        /// <summary>
+        /// 记录日志
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        private DispatcherOperation LogMsg(string msg)
+        {
+            return this.Dispatcher.BeginInvoke(new Action(() => LogText.Text += msg));
         }
     }
 }

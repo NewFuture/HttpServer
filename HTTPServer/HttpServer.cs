@@ -9,6 +9,7 @@ using System.Threading;
 
 namespace HTTPServer
 {
+
     public class HttpServer : IServer
     {
         /// <summary>
@@ -39,6 +40,7 @@ namespace HTTPServer
         public TcpListener serverListener { get; private set; }
 
 
+        private LogDelegate logListener = null;
 
         /// <summary>
         /// SSL证书
@@ -170,6 +172,12 @@ namespace HTTPServer
         }
 
 
+        public HttpServer SetListener(LogDelegate func)
+        {
+            this.logListener = func;
+            return this;
+        }
+
         /// <summary>
         /// 设置端口
         /// </summary>
@@ -255,7 +263,13 @@ namespace HTTPServer
         /// <returns></returns>
         protected HttpServer Log(string msg)
         {
+#if DEBUG
             Console.WriteLine(msg);
+#endif
+            if (this.logListener != null)
+            {
+                logListener(msg);
+            }
             return this;
         }
 
