@@ -99,7 +99,7 @@ namespace HTTPServer
         {
             //初始化内容
             this.Content = content;
-            this.Encoding = encoding == null ? encoding : Encoding.UTF8;
+            this.Encoding = encoding != null ? encoding : Encoding.UTF8;
 
 
             this.Content_Length = Content.Length.ToString();
@@ -114,6 +114,7 @@ namespace HTTPServer
         public HttpResponse SetContent(string content, Encoding encoding = null)
         {
             //初始化内容
+            encoding = encoding != null ? encoding : Encoding.UTF8;
             return SetContent(encoding.GetBytes(content), encoding);
         }
 

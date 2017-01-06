@@ -86,7 +86,7 @@ namespace GUI
             {
                 response.SetContent("");
             }
-            else if (request.Method == "DELE")
+            else if (request.Method == "DELE" || request.Method == "DELELTE")
             {
                 response.SetContent("DELE: " + request.URL);
             }
@@ -103,13 +103,14 @@ namespace GUI
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        private string ListString(string[] list)
+        private string ListString(string[] list, int n = 0)
         {
             // Enumerable.Aggregate(files, (pre, file) => String.Format("{0}<li><a href=\"{1}\">{1}</a></li>", pre, file.Trim(Path.PathSeparator)));
             string text = "";
             foreach (var l in list)
             {
-                text += String.Format("<li><a href=\"{0}\">{0}</a></li>", l.Trim('\\'));
+                var s = l.StartsWith(".") ? l : l.Substring(n).TrimEnd('\\');
+                text += String.Format("<li><a href=\"{0}\">{0}</a></li>", s);
             }
             return text;
 
@@ -125,9 +126,9 @@ namespace GUI
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
             var files = Directory.GetFiles(path);
 
-            var listFolders = ListString(folders);
+            var listFolders = ListString(folders, path.Length);
 
-            var listFiles = ListString(files);
+            var listFiles = ListString(files, path.Length);
 
             var responseText = String.Format(
                 "<html><head><title>{0}</title></head><body><h1>{1}[目录]</h1><h2>文件列表</h2><hr/><ul>{2}</ul><br/><h2>目录列表</h2><hr/><ul>{3}</ul></body></html>",
