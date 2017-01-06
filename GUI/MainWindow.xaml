@@ -15,11 +15,11 @@
         <Button x:Name="RunButton" Content="RUN" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Click="RunButton_Click" Margin="472,16,0,0" Width="74"/>
         <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="231,147,0,0" VerticalAlignment="Top" Height="22" Width="98" FontSize="15" FontWeight="Bold" IsChecked="True"/>
         <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="10,147,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="directoryList_Checked" IsChecked="True"/>
-        <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="476,147,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold"/>
-        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="171" Margin="10,178,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
+        <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="476,147,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="https_Checked"/>
+        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="171" Margin="10,178,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540" TextChanged="LogText_TextChanged"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,102,0,0" TextWrapping="Wrap" Text="证书:" VerticalAlignment="Top" FontWeight="Bold" FontSize="15" Height="26" Width="52"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="26" Margin="91,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="362"/>
-        <Button x:Name="button" Content="选择证书" HorizontalAlignment="Left" Margin="472,102,0,0" VerticalAlignment="Top" Width="74" Height="26"/>
+        <TextBox x:Name="keyText" HorizontalAlignment="Left" Height="26" Margin="91,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="362"/>
+        <Button x:Name="button" Content="选择证书" HorizontalAlignment="Left" Margin="472,102,0,0" VerticalAlignment="Top" Width="74" Height="26" Click="KeyButton_Click"/>
 
     </Grid>
 </Window>

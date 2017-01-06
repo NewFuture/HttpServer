@@ -47,8 +47,9 @@ namespace GUI
         {
             var port = int.Parse(PortText.Text);
             var path = this.FolderText.Text.Trim();
+            String keyPath = keyText.Text;
             this.LogText.Text = String.Format("Web Server is running on port {0}.\nThe root path is {1}\n", port, path);
-            Task.Run(() => this.Run(port, path));
+            Task.Run(() => this.Run(port, path, keyPath));
 
             //HttpListener listener = new HttpListener();
             //listener.Prefixes.Add("http://127.0.0.1:8080/");
@@ -82,12 +83,13 @@ namespace GUI
         /// </summary>
         /// <param name="port"></param>
         /// <param name="path"></param>
-        private void Run(int port, string path)
+        private void Run(int port, string path, string keyPath = null )
         {
             webServer.SetPort(port)
               .SetRoot(path)
               .SetListener(LogMsg)
-              .SetSSL(@"D:\code\HttpServer\ssl\ssl.pfx")
+              //.SetSSL(@"D:\Sherry'ssssssssssssssssssssssssss\Projects\github\HttpServer\ssl\ssl.pfx")
+              .SetSSL(keyPath)
               .Start();
         }
         /// <summary>
@@ -98,6 +100,29 @@ namespace GUI
         private DispatcherOperation LogMsg(string msg)
         {
             return this.Dispatcher.BeginInvoke(new Action(() => LogText.Text += "\n" + msg));
+        }
+
+        private void LogText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void KeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog m_Dialog = new OpenFileDialog();
+
+            if (m_Dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+            {
+                return;
+            }
+            //string m_Dir = m_Dialog.SelectedPath.Trim();
+            string m_Dir = m_Dialog.FileName.Trim();
+            this.keyText.Text = m_Dir;
+        }
+
+        private void https_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
