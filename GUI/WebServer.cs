@@ -137,8 +137,6 @@ namespace GUI
                 listFiles,
                 listFolders
              );
-            //var response = new HttpResponse(responseText, Encoding.UTF8);
-            //return response;
             return responseText;
         }
 
