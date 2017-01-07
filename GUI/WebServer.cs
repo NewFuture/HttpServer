@@ -71,7 +71,7 @@ namespace GUI
         /// <param name="response"></param>
         public override void OnPost(HttpRequest request, HttpResponse response)
         {
-            string s = string.Join(";", request.Params.Select(x => x.Key + "=" + x.Value).ToArray());
+            string s = request.Params == null ? "EMPTY POST" : string.Join(";", request.Params.Select(x => x.Key + "=" + x.Value).ToArray());
             response.SetContent(s, Encoding.UTF8);
         }
 

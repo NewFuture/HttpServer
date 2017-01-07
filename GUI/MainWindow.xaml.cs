@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using System.Threading.Tasks;
 using System.Net;
+using System.IO;
 
 namespace GUI
 {
@@ -28,9 +29,51 @@ namespace GUI
         {
             webServer = new WebServer("0.0.0.0");
             InitializeComponent();
+            this.directoryList.Checked += DirectoryList_Changed;
+            this.directoryList.Unchecked += DirectoryList_Changed;
+
+            this.log.Checked += LogCheck_Changed;
+            this.log.Unchecked += LogCheck_Changed;
+
             this.FolderText.Text = System.IO.Directory.GetCurrentDirectory();
+
+            this.log.IsChecked = true;
+            this.directoryList.IsChecked = true;
+
         }
 
+        /// <summary>
+        /// log复选框
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LogCheck_Changed(object sender, RoutedEventArgs e)
+        {
+            if (log.IsChecked == true)
+            {
+                webServer.SetListener(LogMsg);
+            }
+            else
+            {
+                this.webServer.SetListener(null);
+            }
+        }
+
+        /// <summary>
+        /// 列举目录复选框
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DirectoryList_Changed(object sender, RoutedEventArgs e)
+        {
+            webServer.ListEnable = directoryList.IsChecked == true;
+        }
+
+        /// <summary>
+        /// 选择文件夹按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FolderButton_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog m_Dialog = new FolderBrowserDialog();
@@ -43,27 +86,25 @@ namespace GUI
             this.FolderText.Text = m_Dir;
         }
 
+        /// <summary>
+        /// RUN 按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RunButton_Click(object sender, RoutedEventArgs e)
         {
             if (webServer.IsRunning)
             {
                 webServer.Stop();
                 RunButton.Content = "启动";
+                Setting.IsEnabled = true;
             }
             else
             {
-                var port = int.Parse(PortText.Text);
-                var path = this.FolderText.Text.Trim();
-                String keyPath = keyText.Text;
-                this.LogText.Text = String.Format("Web Server is running on port {0}.\nThe root path is {1}\n", port, path);
-                Task.Run(() => this.Run(port, path, keyPath));
+                Setting.IsEnabled = false;
+                Run();
                 RunButton.Content = "停止";
             }
-        }
-
-        private void directoryList_Checked(object sender, RoutedEventArgs e)
-        {
-            webServer.ListEnable = directoryList.IsChecked == true;
         }
 
         /// <summary>
@@ -71,12 +112,28 @@ namespace GUI
         /// </summary>
         /// <param name="port"></param>
         /// <param name="path"></param>
-        private void Run(int port, string path, string keyPath = null)
+        private void Run()
         {
-            webServer.SetPort(port)
-              .SetRoot(path)
-              .SetListener(LogMsg)
-              .Start();
+            var port = int.Parse(PortText.Text);
+            var path = this.FolderText.Text.Trim();
+            this.LogText.Text = String.Format("Web Server is running on port {0}.\nThe root path is {1}\n", port, path);
+            webServer.SetPort(port).SetRoot(path);
+            if (log.IsChecked == true)
+            {
+                webServer.SetListener(LogMsg);
+            }
+            else
+            {
+                this.webServer.SetListener(null);
+            }
+            if (HTTPS.IsChecked == true)
+            {
+                String keyPath = keyText.Text;
+                webServer.SetSSL(keyPath);
+            }
+
+            Task.Run(() => webServer.Start());
+
         }
 
         /// <summary>
@@ -92,12 +149,12 @@ namespace GUI
         private void KeyButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog m_Dialog = new OpenFileDialog();
-
+            m_Dialog.Title = "选择证书";
+            m_Dialog.Multiselect = false;
             if (m_Dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
             {
                 return;
             }
-            //string m_Dir = m_Dialog.SelectedPath.Trim();
             string m_Dir = m_Dialog.FileName.Trim();
             this.keyText.Text = m_Dir;
         }
@@ -106,18 +163,16 @@ namespace GUI
         {
             keyButton.IsEnabled = true;
             keyText.IsEnabled = true;
-        }
-
-        private void keyText_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var path = this.keyText.Text.Trim();
-            if (String.IsNullOrWhiteSpace(path))
+            if (PortText.Text.Trim() == "80")
             {
-                webServer.DelSSL();
+                PortText.Text = "443";
             }
-            else
+
+            var key = keyText.Text;
+            if (String.IsNullOrWhiteSpace(key) || !File.Exists(key))
             {
-                webServer.SetSSL(path);
+                //选择证书
+                KeyButton_Click(null, null);
             }
         }
 
@@ -125,6 +180,32 @@ namespace GUI
         {
             keyButton.IsEnabled = false;
             keyText.IsEnabled = false;
+            webServer.DelSSL();
+            if (PortText.Text.Trim() == "443")
+            {
+                PortText.Text = "80";
+            }
+        }
+
+        private void keyText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var path = this.keyText.Text.Trim();
+            if (String.IsNullOrWhiteSpace(path))
+            {
+                //webServer.DelSSL();
+                https_Unchecked(null, null);
+            }
+            else
+            {
+                webServer.SetSSL(path);
+            }
+        }
+
+
+
+        private void directoryList_Click(object sender, RoutedEventArgs e)
+        {
+            webServer.ListEnable = directoryList.IsChecked == true;
         }
     }
 }

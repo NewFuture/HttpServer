@@ -212,21 +212,31 @@ namespace HTTPServer
                 Console.WriteLine("can not write");
                 return null;
             }
-            //构建响应头
-            byte[] header = this.Encoding.GetBytes(BuildHeader());
-            handler.Write(header, 0, header.Length);
+            try
+            {
+                //构建响应头
+                byte[] header = this.Encoding.GetBytes(BuildHeader());
+                handler.Write(header, 0, header.Length);
 
-            //发送响应头
-            //handler.Send(header);
+                //发送响应头
+                //handler.Send(header);
 
-            //发送空行
-            byte[] line = this.Encoding.GetBytes(System.Environment.NewLine);
-            handler.Write(line, 0, line.Length);
+                //发送空行
+                byte[] line = this.Encoding.GetBytes(System.Environment.NewLine);
+                handler.Write(line, 0, line.Length);
 
-            handler.Write(Content, 0, Content.Length);
+                handler.Write(Content, 0, Content.Length);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("write error: {0}", e.Message);
+            }
+            finally
+            {
+                handler.Close();
+            }
 
             //结束会话
-            handler.Close();
             return this;
         }
     }
