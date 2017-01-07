@@ -55,7 +55,7 @@ namespace GUI
                 }
                 else
                 {
-                    requestFile += Path.Combine(requestFile, index);
+                    requestFile = Path.Combine(requestFile, index);
                 }
             }
 
@@ -103,10 +103,11 @@ namespace GUI
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        private string ListString(string[] list, int n = 0)
+        private string ListString(string[] list)
         {
             // Enumerable.Aggregate(files, (pre, file) => String.Format("{0}<li><a href=\"{1}\">{1}</a></li>", pre, file.Trim(Path.PathSeparator)));
             string text = "";
+            int n = ServerRoot.Length;
             foreach (var l in list)
             {
                 var s = l.StartsWith("..") ? l : l.Substring(n).TrimEnd('\\');
@@ -134,9 +135,9 @@ namespace GUI
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
             var files = Directory.GetFiles(path);
 
-            var listFolders = ListString(folders, path.Length);
+            var listFolders = ListString(folders);
 
-            var listFiles = ListString(files, path.Length);
+            var listFiles = ListString(files);
 
             var responseText = String.Format(
                 "<html><head><title>{0}</title></head><body><h1>{1}[目录]</h1><h2>文件列表</h2><hr/><ul>{2}</ul><br/><h2>目录列表</h2><hr/><ul>{3}</ul></body></html>",
