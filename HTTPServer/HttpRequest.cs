@@ -143,7 +143,7 @@ namespace HTTPServer
                 length = handler.Read(bytes, 0, MAX_SIZE - 1);
                 //缓存客户端请求报文
                 content += Encoding.UTF8.GetString(bytes, 0, length);
-            } while (length > 0&&!content.EndsWith("\r\n\r\n"));
+            } while (length > 0 && !content.Contains("\r\n\r\n"));
 
             if (String.IsNullOrEmpty(content))
             {
@@ -162,13 +162,13 @@ namespace HTTPServer
             }
             if (firstLine.Length > 1)
             {
-                this.URL = firstLine[1];
+                this.URL = Uri.UnescapeDataString(firstLine[1]);
             }
 
             //获取请求参数
             if (this.Method == "GET" && this.URL.Contains('?'))
             {
-                this.Params = GetRequestParams(lines[0].Split(' ')[1].Split('?')[1]);
+                this.Params = GetRequestParams(URL.Split('?')[1]);
             }
             else if (this.Method == "POST")
             {
