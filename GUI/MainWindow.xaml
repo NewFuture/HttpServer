@@ -5,22 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="HTTPServer" Height="411" Width="569.744">
+        Title="HTTPServer" Height="411" Width="581.744">
     <Grid Margin="0,0,2,-1">
-        <Button x:Name="RunButton" Content="启动" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Click="RunButton_Click" Margin="472,16,0,0" Width="74"/>
-        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="196" Margin="10,153,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
-        <Grid x:Name="Setting" Margin="10,15,14,253">
+        <Button x:Name="RunButton" Content="启动" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Click="RunButton_Click" Margin="478,15,0,0" Width="74"/>
+        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="196" Margin="10,153,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="552"/>
+        <Grid x:Name="Setting" Margin="10,15,10,233">
             <TextBlock x:Name="port" TextWrapping="Wrap" Width="72" HorizontalAlignment="Left" FontSize="15" Margin="0,1,0,16" FontWeight="Bold"><Run Text="服务端口:"/></TextBlock>
             <TextBox x:Name="PortText" HorizontalAlignment="Left"  VerticalAlignment="Top" TextWrapping="Wrap" Text="80" Width="46" Height="28" FontSize="15"  Margin="81,0,0,0"/>
             <TextBlock x:Name="directory" HorizontalAlignment="Left" TextWrapping="Wrap" Width="72" Margin="0,44,0,14" FontSize="15" FontWeight="Bold"><Run Text="服务目录:"/></TextBlock>
-            <TextBox x:Name="FolderText" TextWrapping="Wrap" Text=".\" Width="362" Height="26" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Margin="81,43,0,0"/>
-            <Button x:Name="FolderButton" Content="选择文件夹" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Height="26" Click="FolderButton_Click" Margin="462,43,0,0"/>
-            <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="252,3,0,0" VerticalAlignment="Top" Height="27" Width="98" FontSize="15" FontWeight="Bold"/>
+            <TextBox x:Name="FolderText" TextWrapping="Wrap" Text=".\" Width="371" Height="26" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Margin="81,43,0,0"/>
+            <Button x:Name="FolderButton" Content="选择文件夹" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Height="26" Click="FolderButton_Click" Margin="468,43,0,0"/>
+            <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="256,3,0,0" VerticalAlignment="Top" Height="27" Width="98" FontSize="15" FontWeight="Bold"/>
             <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="148,3,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Height="27" Click="directoryList_Click"/>
-            <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="365,3,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="https_Checked" Height="27" Unchecked="https_Unchecked"/>
+            <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="372,3,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="https_Checked" Height="27" Unchecked="https_Unchecked"/>
             <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="0,87,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold" FontSize="15" Height="26" Width="72"><Run Text="证书"/><Run Text="路径"/><Run Text=":"/></TextBlock>
-            <TextBox x:Name="keyText" HorizontalAlignment="Left" Height="26" Margin="81,87,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="362" IsEnabled="False" TextChanged="keyText_TextChanged"/>
-            <Button x:Name="keyButton" Content="选择证书" HorizontalAlignment="Left" Margin="462,87,0,0" VerticalAlignment="Top" Width="74" Height="26" IsEnabled="False" Click="KeyButton_Click"/>
+            <TextBox x:Name="keyText" HorizontalAlignment="Left" Height="26" Margin="81,87,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="371" IsEnabled="False" TextChanged="keyText_TextChanged"/>
+            <Button x:Name="keyButton" Content="选择证书" HorizontalAlignment="Left" Margin="468,87,0,0" VerticalAlignment="Top" Width="74" Height="26" IsEnabled="False" Click="KeyButton_Click"/>
 
         </Grid>
 
