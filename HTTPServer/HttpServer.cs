@@ -126,24 +126,34 @@ namespace HTTPServer
             //创建服务端Socket
             serverListener = new TcpListener(IPAddress.Parse(ServerIP), ServerPort);
             IsRunning = true;
-            this.Log(String.Format("Sever is running at http://{0}:{1}/.", ServerIP, ServerPort));
+            this.Log(String.Format("Sever is running at {0}://{1}:{2}", (serverCertificate == null) ? "http" : "https", IPAddress.Loopback, ServerPort));
 
             serverListener.Start();
-            while (IsRunning)
+            try
             {
-                TcpClient client = serverListener.AcceptTcpClient();
-                Thread requestThread = new Thread(() => { ProcessRequest(client); });
-                requestThread.Start();
+                while (IsRunning)
+                {
+                    TcpClient client = serverListener.AcceptTcpClient();
+                    Thread requestThread = new Thread(() => { ProcessRequest(client); });
+                    requestThread.Start();
+                }
+            }
+            catch (Exception e)
+            {
+                Log(e.Message);
             }
 
         }
 
-
+        /// <summary>
+        /// 加载证书
+        /// </summary>
+        /// <param name="certificate"></param>
+        /// <returns></returns>
         public HttpServer SetSSL(string certificate)
         {
-            this.serverCertificate = X509Certificate.CreateFromCertFile(certificate);
-            return this;
-
+            Log("load certificate from :" + certificate);
+            return SetSSL(X509Certificate.CreateFromCertFile(certificate));
         }
 
         public HttpServer SetSSL(X509Certificate certifiate)

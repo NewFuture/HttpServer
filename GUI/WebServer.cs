@@ -109,7 +109,7 @@ namespace GUI
             string text = "";
             foreach (var l in list)
             {
-                var s = l.StartsWith(".") ? l : l.Substring(n).TrimEnd('\\');
+                var s = l.StartsWith("..") ? l : l.Substring(n).TrimEnd('\\');
                 text += String.Format("<li><a href=\"{0}\">{0}</a></li>", s);
             }
             return text;
@@ -122,7 +122,15 @@ namespace GUI
         /// <param name="path"></param>
         private string ListFiles(string path, string h1)
         {
-            string[] folders = { "../" };
+            string[] folders;
+            if (h1.Length > 1)
+            {
+                folders = new string[] { "../" };
+            }
+            else
+            {
+                folders = new string[] { };
+            }
             folders = folders.Concat(Directory.GetDirectories(path)).ToArray();
             var files = Directory.GetFiles(path);
 
