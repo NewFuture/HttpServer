@@ -76,7 +76,6 @@ namespace GUI
             webServer.SetPort(port)
               .SetRoot(path)
               .SetListener(LogMsg)
-              //.SetSSL(keyPath)
               .Start();
         }
 
@@ -105,7 +104,27 @@ namespace GUI
 
         private void https_Checked(object sender, RoutedEventArgs e)
         {
+            keyButton.IsEnabled = true;
+            keyText.IsEnabled = true;
+        }
 
+        private void keyText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var path = this.keyText.Text.Trim();
+            if (String.IsNullOrWhiteSpace(path))
+            {
+                webServer.DelSSL();
+            }
+            else
+            {
+                webServer.SetSSL(path);
+            }
+        }
+
+        private void https_Unchecked(object sender, RoutedEventArgs e)
+        {
+            keyButton.IsEnabled = false;
+            keyText.IsEnabled = false;
         }
     }
 }

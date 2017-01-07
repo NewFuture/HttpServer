@@ -15,11 +15,11 @@
         <Button x:Name="RunButton" Content="启动" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Click="RunButton_Click" Margin="472,16,0,0" Width="74"/>
         <CheckBox x:Name="log" Content="日志输出" HorizontalAlignment="Left" Margin="262,18,0,0" VerticalAlignment="Top" Height="27" Width="98" FontSize="15" FontWeight="Bold" IsChecked="True"/>
         <CheckBox x:Name="directoryList" Content="列出目录" HorizontalAlignment="Left" Margin="158,18,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="directoryList_Checked" IsChecked="True" Height="27"/>
-        <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="375,18,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="https_Checked" Height="27"/>
-        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="171" Margin="10,178,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
+        <CheckBox x:Name="HTTPS" Content="HTTPS" HorizontalAlignment="Left" Margin="375,18,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Bold" Checked="https_Checked" Height="27" Unchecked="https_Unchecked"/>
+        <TextBox x:Name="LogText" HorizontalAlignment="Left" Height="196" Margin="10,153,0,0" TextWrapping="Wrap" Text="输出：" VerticalAlignment="Top" Width="540"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold" FontSize="15" Height="26" Width="72"><Run Text="证书"/><Run Text="路径"/><Run Text=":"/></TextBlock>
-        <TextBox x:Name="keyText" HorizontalAlignment="Left" Height="26" Margin="91,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="362"/>
-        <Button x:Name="button" Content="选择证书" HorizontalAlignment="Left" Margin="472,102,0,0" VerticalAlignment="Top" Width="74" Height="26" Click="KeyButton_Click"/>
+        <TextBox x:Name="keyText" HorizontalAlignment="Left" Height="26" Margin="91,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="362" IsEnabled="False" TextChanged="keyText_TextChanged"/>
+        <Button x:Name="keyButton" Content="选择证书" HorizontalAlignment="Left" Margin="472,102,0,0" VerticalAlignment="Top" Width="74" Height="26" IsEnabled="False" Click="KeyButton_Click"/>
 
     </Grid>
 </Window>
