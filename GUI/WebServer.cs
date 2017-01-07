@@ -86,7 +86,7 @@ namespace GUI
             {
                 response.SetContent("");
             }
-            else if (request.Method == "DELE" || request.Method == "DELELTE")
+            else if (request.Method == "DELE" || request.Method == "DELETE")
             {
                 response.SetContent("DELE: " + request.URL);
             }
